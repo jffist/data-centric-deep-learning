@@ -13,7 +13,7 @@ def random_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[int]:
   '''
   fix_random_seed(42)
   
-  indices = []
+  indices = np.random.choice(pred_probs.shape[0], budget, replace=False)
   # ================================
   # FILL ME OUT
   # Randomly pick a 1000 examples to label. This serves as a baseline.

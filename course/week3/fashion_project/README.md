@@ -20,4 +20,5 @@ MODEL (AUGMENT)     : XX.X%
 |-------------|---------------|-----------|--------|
 |MODEL (DEFAULT) |30.2%|85.3%|NA|
 |MODEL (RANDOM)  |40.9%|53.3%|75%|
+|MODEL (UNCERTAINTY)|38.2%|61.2%|85%|
 

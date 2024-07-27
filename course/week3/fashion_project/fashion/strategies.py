@@ -39,6 +39,8 @@ def uncertainty_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[
   # Take the first 1000.
   # HINT: please ensure indices is a list of integers
   # ================================
+  max_prob_per_example = pred_probs.max(dim=1)[0] # max return tensor of max_val, index_of_max_val
+  indices = max_prob_per_example.sort()[1][:budget].numpy() # sort return sorted_array, sorted_indexes
   return indices
 
 def margin_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[int]:

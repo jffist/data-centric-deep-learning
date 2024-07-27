@@ -12,8 +12,8 @@ MODEL (DEFAULT).    : 30.2%
 MODEL (RANDOM)      : 40.9%
 MODEL (UNCERTAINTY) : 38.2%
 MODEL (MARGIN)      : 44.8%
-MODEL (ENTROPY)     : XX.X%
-MODEL (AUGMENT)     : XX.X%
+MODEL (ENTROPY)     : 43.0%
+MODEL (AUGMENT)     : 64.4%
 
 
 |model version|production acc|offline acc|train acc|
@@ -23,4 +23,4 @@ MODEL (AUGMENT)     : XX.X%
 |MODEL (UNCERTAINTY)|38.2%|61.2%|85%|
 |MODEL (MARGIN)|44.8%|65.3%|87.5%|
 |MODEL (ENTROPY)|43.0%|67.1%|87.5%|
-|MODEL (AUGMENT)|xx%|xx%|xx%|
+|MODEL (AUGMENT)|**64.4%**|67.0%|62.5%|

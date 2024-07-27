@@ -22,5 +22,5 @@ MODEL (AUGMENT)     : XX.X%
 |MODEL (RANDOM)  |40.9%|53.3%|75%|
 |MODEL (UNCERTAINTY)|38.2%|61.2%|85%|
 |MODEL (MARGIN)|44.8%|65.3%|87.5%|
-|MODEL (ENTROPY)|xx%|xx%|xx%|
-
+|MODEL (ENTROPY)|43.0%|67.1%|87.5%|
+|MODEL (AUGMENT)|xx%|xx%|xx%|

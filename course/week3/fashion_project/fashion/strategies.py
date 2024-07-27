@@ -78,4 +78,6 @@ def entropy_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[int]
   # Take the first 1000.
   # HINT: Add epsilon when taking a log for entropy computation
   # ================================
+  entropy = -((pred_probs + epsilon).log() * pred_probs).sum(dim=1)
+  indices = entropy.argsort(descending=True)[:budget].tolist()
   return indices

@@ -40,7 +40,7 @@ def uncertainty_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[
   # HINT: please ensure indices is a list of integers
   # ================================
   max_prob_per_example = pred_probs.max(dim=1)[0] # max return tensor of max_val, index_of_max_val
-  indices = max_prob_per_example.sort()[1][:budget].numpy() # sort return sorted_array, sorted_indexes
+  indices = max_prob_per_example.sort()[1][:budget].tolist() # sort return sorted_array, sorted_indexes
   return indices
 
 def margin_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[int]:
@@ -55,6 +55,11 @@ def margin_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[int]:
   # Sort indices by the different in predicted probabilities in the top two classes per example.
   # Take the first 1000.
   # ================================
+  sorted_indexes_per_example = pred_probs.argsort(dim=1, descending=True)
+  all_rows_idx = torch.arange(pred_probs.size(0))
+  top1_prob = pred_probs[all_rows_idx, sorted_indexes_per_example[:,0]]
+  top2_prob = pred_probs[all_rows_idx, sorted_indexes_per_example[:,1]]
+  indices =  (top1_prob - top2_prob).argsort()[:budget].tolist()
   return indices
 
 def entropy_sampling(pred_probs: torch.Tensor, budget : int = 1000) -> List[int]:

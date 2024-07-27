@@ -10,8 +10,8 @@ This project will investigate various strategies to identify elements for relabe
 # Results
 MODEL (DEFAULT).    : 30.2%
 MODEL (RANDOM)      : 40.9%
-MODEL (UNCERTAINTY) : XX.X%
-MODEL (MARGIN)      : XX.X%
+MODEL (UNCERTAINTY) : 38.2%
+MODEL (MARGIN)      : 44.8%
 MODEL (ENTROPY)     : XX.X%
 MODEL (AUGMENT)     : XX.X%
 
@@ -21,4 +21,6 @@ MODEL (AUGMENT)     : XX.X%
 |MODEL (DEFAULT) |30.2%|85.3%|NA|
 |MODEL (RANDOM)  |40.9%|53.3%|75%|
 |MODEL (UNCERTAINTY)|38.2%|61.2%|85%|
+|MODEL (MARGIN)|44.8%|65.3%|87.5%|
+|MODEL (ENTROPY)|xx%|xx%|xx%|
 

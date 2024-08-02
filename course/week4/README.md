@@ -21,3 +21,14 @@ There is code for you to complete in the following files
 - `scripts/optimizer_params.py`
 
 We recommend you to follow the instructions on Uplimit closely.
+
+# Optimisation results
+best params to deploy 
+```
+{
+    "embedding": "thenlper/gte-small"
+    "text_search_weight": 0.0
+    "hyde_embeddings": False
+}
+```
+`text_search_weight` didn't have any impact on the automated evaluation, so ideally we should extend the set of questions to check if text search helps for some corner cases.

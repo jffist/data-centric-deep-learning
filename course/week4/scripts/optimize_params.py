@@ -69,8 +69,15 @@ class OptimizeRagParams(FlowSpec):
     # - whether to use hyde embeddings or question embeddings
     # In total this is searching over 8 configurations. In practice, we may search
     # over 100,000s but this should illustruate the point.
-    # TODO
     # ===========================
+    for embedding in ["all-MiniLM-L6-v2", "thenlper/gte-small"]:
+      for text_search_weight in [0, 0.5]:
+        for hyde in [False, True]:
+          hparams.append(DotMap({
+            "embedding": embedding,
+            "text_search_weight": text_search_weight,
+            "hyde_embeddings": hyde,
+            }))
     assert len(hparams) > 0, "Remember to complete the code in `get_search_space`"
     assert len(hparams) == 8, "You should have 8 configurations" 
     self.hparams = hparams
@@ -85,7 +92,6 @@ class OptimizeRagParams(FlowSpec):
     # Load the questions CSV containing generated questions and the 
     # doc id used to generate that question.
     questions = pd.read_csv(self.questions_file)
-
     # Use this to retrieve documents
     collection_name = get_my_collection_name(
       env['GITHUB_USERNAME'],
@@ -106,8 +112,23 @@ class OptimizeRagParams(FlowSpec):
       #      the three hyperparameters in `hparams` to do this.
       #   2. Track if the correct document appears in the top 3 retrieved documents.
       #      +1 to `hits` if it does. +0 to `hits` if not.
-      # TODO
       # ===========================
+      if self.input.hyde_embeddings:
+        query = questions["hypo_answers"].iloc[i]
+      else:
+        query = question
+      query_embedding = embedding_model.encode(query).tolist()
+      docs = retrieve_documents(
+        self.starpoint_api_key,
+        collection_name,
+        question, # use the same approach as run_rag_agent and don't transform query for the text search
+        query_embedding,
+        top_k=3,
+        text_search_weight=self.input.text_search_weight         
+      )
+      retrieved_ids = [d["metadata"]["doc_id"] for d in docs]
+      if gt_id in retrieved_ids:
+        hits += 1
 
     hit_rate = hits / float(len(questions))
     self.hit_rate = hit_rate  # save to class
@@ -131,6 +152,7 @@ class OptimizeRagParams(FlowSpec):
       results.append(result)
 
     results = pd.DataFrame.from_records(results)
+    results = results.sort_values(by=["hit_rate","hyde_embeddings","text_search_weight"])
     results.to_csv(join(save_dir, f'run-{int(time.time())}.csv'), index=False)
     
     self.next(self.end)

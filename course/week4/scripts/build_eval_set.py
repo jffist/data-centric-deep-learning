@@ -63,8 +63,9 @@ class BuildEvaluationSet(FlowSpec):
         # Use `query_openai` to generate a question from the chunk text `chunk`. 
         # See `rag/prompts` for a bank of relevant prompts to use. You may edit any prompts in there.
         # Save the generated question (as a string) into the `question` variable.
-        # TODO
         # ===========================
+        question_prompt = get_question_prompt(chunk)
+        question = query_openai(self.openai_api_key, question_prompt)
         assert len(question) > 0, f"Did you complete the coding section in `write_questions`?"
         questions.append(question)
         doc_ids.append(doc_id) # save the doc id for each 
@@ -92,8 +93,23 @@ class BuildEvaluationSet(FlowSpec):
       # Make sure the response is an integer. 
       # HINT: LLM are not perfect. When you try to cast to an integer, wrap it in a try/catch statement.
       #       Set the rating to 0 if integer casting fails.
-      # TODO
       # ===========================
+      context = self.contexts[i]
+      question = self.questions[i]
+      rating_prompt = get_question_judge_prompt(
+        question, context
+      )
+      rating_response = query_openai(self.openai_api_key, rating_prompt)
+      try:
+        rating = int(rating_response)
+      except Exception as e:
+        print(f"Couldn't rate question {i}")
+        print(f"\tQuestion: {question}")
+        min_len = min(30, len(context))
+        print(f"\tChunk: {context[:min_len]}...")
+        print(f"\tdoc_id: {self.doc_ids[i]}")
+        print(f"Response: {rating_response}")
+        print(e)
       assert rating >= 0, f"Did you complete the coding section in `grade_questions`?"
       ratings.append(rating)
 
@@ -116,8 +132,9 @@ class BuildEvaluationSet(FlowSpec):
       # FILL ME OUT
       # Use `query_openai` to write a short answer to each question.
       # See `rag/prompts` for a bank of relevant prompts to use. You may edit any prompts in there.
-      # TODO
       # ===========================
+      hypo_prompt = get_hyde_response_prompt(self.questions[i])
+      hypo_answer =  query_openai(self.openai_api_key, hypo_prompt)
       assert len(hypo_answer) > 0, f"Did you complete the coding section in `write_hypothetical_answers`?"
       hypo_answers.append(hypo_answer)
 
@@ -143,6 +160,10 @@ class BuildEvaluationSet(FlowSpec):
       'hypo_answers': self.hypo_answers,
     }
     dataset = pd.DataFrame(dataset)
+    low_rank_idx = dataset['ratings'] <= 3
+    print(f"{sum(low_rank_idx)} questions with rating <=3 will be removed")
+    dataset = dataset[~low_rank_idx]
+    print(f"Final evaluation set size {len(dataset)}")
     dataset.to_csv(question_file, index=False)
 
     self.next(self.end)

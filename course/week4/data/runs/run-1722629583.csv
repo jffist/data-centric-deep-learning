@@ -1,0 +1,9 @@
+hit_rate,embedding,text_search_weight,hyde_embeddings
+0.8645833333333334,thenlper/gte-small,0.0,True
+0.8697916666666666,thenlper/gte-small,0.5,True
+0.875,all-MiniLM-L6-v2,0.0,True
+0.8802083333333334,all-MiniLM-L6-v2,0.5,True
+0.9895833333333334,all-MiniLM-L6-v2,0.0,False
+0.9895833333333334,all-MiniLM-L6-v2,0.5,False
+0.9947916666666666,thenlper/gte-small,0.0,False
+0.9947916666666666,thenlper/gte-small,0.5,False

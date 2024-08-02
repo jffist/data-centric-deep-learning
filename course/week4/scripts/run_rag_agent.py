@@ -10,7 +10,7 @@ def main(args):
   r"""Initialize a RAG agent and have a conversation with it. 
   """
   system_prompt = get_persona()
-  collection_name = get_my_collection_name(env['GITHUB_USERNAME'])
+  collection_name = get_my_collection_name(env['GITHUB_USERNAME'], args.embedding, args.hyde)
   embedding_model = SentenceTransformer(args.embedding)
 
   pc(get_welcome_message())

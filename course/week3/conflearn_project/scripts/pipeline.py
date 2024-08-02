@@ -124,8 +124,9 @@ class TrainIdentifyReview(FlowSpec):
 
     # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html
     kf = KFold(n_splits=3)    # create kfold splits
-
+    i = 0
     for train_index, test_index in kf.split(X):
+      print(f"# Starting fold {i}")
       probs_ = None
       # ===============================================
       # FILL ME OUT
@@ -161,10 +162,30 @@ class TrainIdentifyReview(FlowSpec):
       # Types:
       # --
       # probs_: np.array[float] (shape: |test set|)
-      # TODO
       # ===============================================
+      system_ = SentimentClassifierSystem(self.config)
+      trainer_ = Trainer(max_epochs=self.config.train.optimizer.max_epochs) # change to 1 for debugging
+
+      print(f"\t## Training fold {i}")
+      X_train = torch.tensor(X[train_index, :])
+      y_train = torch.tensor(y[train_index])
+      train_dataset = TensorDataset(X_train, y_train)
+      train_dl = DataLoader(train_dataset, batch_size=dm.batch_size, shuffle=True)
+      trainer_.fit(system_, train_dataloaders=train_dl)
+      print(f"\t## Predicting fold {i}")
+      X_test = torch.tensor(X[test_index, :])
+      y_test = torch.tensor(y[test_index])
+      test_dataset = TensorDataset(X_test, y_test)
+      test_dl = DataLoader(test_dataset, batch_size=dm.batch_size)
+      test_predictions = trainer_.predict(system_, dataloaders=test_dl)
+      # test_predictions is a list of tensors of shape [batch_size,1]
+      # we need to concat them to get probabilities
+      probs_ = torch.concat([b.squeeze() for b in test_predictions]).cpu().numpy()
+      
       assert probs_ is not None, "`probs_` is not defined."
       probs[test_index] = probs_
+      print(f"# fold {i} completeted")
+      i += 1
 
     # create a single dataframe with all input features
     all_df = pd.concat([
@@ -206,13 +227,18 @@ class TrainIdentifyReview(FlowSpec):
     # Types
     # --
     # ranked_label_issues: List[int]
-    # TODO
     # =============================
+    ranked_label_issues = find_label_issues(self.all_df.label, prob, return_indices_ranked_by="self_confidence")
     assert ranked_label_issues is not None, "`ranked_label_issues` not defined."
 
     # save this to class
     self.issues = ranked_label_issues
     print(f'{len(ranked_label_issues)} label issues found.')
+    print("## Examples of issues:")
+    for idx in ranked_label_issues[:min(3,len(ranked_label_issues))]:
+      print(f"IDx:{idx}, Label: {self.all_df.loc[idx,'label']}, Predicted prob:{self.all_df.loc[idx,'prob']:.4f}")
+      print(self.all_df.loc[idx,'review'][:250])
+      print('---')
 
     # overwrite label for all the entries in all_df
     for index in self.issues:
@@ -303,8 +329,11 @@ class TrainIdentifyReview(FlowSpec):
     # dm.train_dataset.data = training slice of self.all_df
     # dm.dev_dataset.data = dev slice of self.all_df
     # dm.test_dataset.data = test slice of self.all_df
-    # TODO
     # # ====================================
+    dm.train_dataset.data = self.all_df.iloc[:train_size]
+    dev_end_idx = train_size + dev_size
+    dm.dev_dataset.data = self.all_df.iloc[train_size:dev_end_idx]
+    dm.test_dataset.data = self.all_df.iloc[dev_end_idx:]
 
     # start from scratch
     system = SentimentClassifierSystem(self.config)
